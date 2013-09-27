@@ -12,8 +12,7 @@
 
 def main():
 
-    def ParseFile(filename):
-        pass
+    TitleWordList = []
 
     def Learn():
         pass
@@ -21,10 +20,13 @@ def main():
     def WriteLearnedWeights():
         pass
 
-    #train on files 0-20
-    for i in range(0,21):
-        filename = "reut2-%s.sgm" % ("%03d" % i)
-        print filename
+    #train on data.txt the learning set of sgm 000-020
+
+    #go through line by line until next title found
+    with open('output.txt','r') as file:
+        for line in file:
+
+
 
 if __name__ == '__main__':
     main()
