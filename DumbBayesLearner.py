@@ -21,7 +21,10 @@ def main():
     def WriteLearnedWeights():
         pass
 
-    pass
+    #train on files 0-20
+    for i in range(0,21):
+        filename = "reut2-%s.sgm" % ("%03d" % i)
+        print filename
 
 if __name__ == '__main__':
     main()
