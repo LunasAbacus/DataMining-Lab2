@@ -64,7 +64,7 @@ def main():
         for line in f:
             blacklist.append(line.rstrip())
 
-    for i in range(0,2):
+    for i in range(0,1):
         filename = "reut2-%s.sgm" % ("%03d" % i)
         print filename
         sgm = RR(filename)
@@ -99,7 +99,6 @@ def main():
             #    AddToDict(BodyDic, token, blacklist)
 
 
-
     print("")
     sorted_body = sorted(TopicDic.iteritems(), key=operator.itemgetter(1))
     sorted_body = sorted_body[::-1]
@@ -111,9 +110,29 @@ def main():
     string = """With other major banks standing to lose even more than
                 BankAmerica if Brazil wheat fails to service its debt, the analysts
                 said they expect the debt will be restructured, similar to way
-                Mexico's debt was, minimizing losses to the creditor banks."""
+                Mexico's debt was, minimizing soybean wheat losses to the creditor banks."""
 
     print(str(ClassifyShit(string.lower().split())))
+
+    #now test learned data
+    filename = "reut2-001.sgm"
+    sgm = RR(filename)
+    #get wordlist from file
+    WordList = []
+    #for j in range(0,sgm.NumberOfReuters()-1):
+    for j in range(sgm.NumberOfReuters()-3,sgm.NumberOfReuters()-1):
+        body = sgm.ExtractTagData(j,"BODY")
+        body = re.sub("[\d]"," ", body)
+        body = re.sub("[^\w-]"," ", body)
+        body = re.sub("- ", "", body)
+        body = re.sub(" -", "", body)
+
+        body = body.lower()
+        WordList = body.split()
+
+        print("\nClassifying test article:\n")
+        ClassifyShit(WordList)
+
 
 if __name__ == '__main__':
     main()
