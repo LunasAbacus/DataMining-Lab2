@@ -39,19 +39,22 @@ def main():
         for word in wordList:
             WordWeights[word] = 0
 
-        WordWeights[wordList[0]] += WordWeight("", wordList[0], wordList[1])
+        if (len(wordList) > 2):
+            WordWeights[wordList[0]] += WordWeight("", wordList[0], wordList[1])
 
-        for i in range(1, len(wordList) - 1):
-            WordWeights[wordList[i]] += WordWeight(wordList[i-1], wordList[i], wordList[i+1])
+            for i in range(1, len(wordList) - 1):
+                WordWeights[wordList[i]] += WordWeight(wordList[i-1], wordList[i], wordList[i+1])
 
-        WordWeights[wordList[-1]] += WordWeight(wordList[-2],wordList[-1], "")
+            WordWeights[wordList[-1]] += WordWeight(wordList[-2],wordList[-1], "")
 
         #return list of top 3 words
         sorted_body = sorted(WordWeights.iteritems(), key=operator.itemgetter(1))
         sorted_body = sorted_body[::-1]
+        RetList = []
         for i in range(0, min(4, len(sorted_body))):
-            print(sorted_body[i][0] + " : " + str(sorted_body[i][1]))
-
+            #print(sorted_body[i][0] + " : " + str(sorted_body[i][1]))
+            RetList.append(sorted_body[i][0])
+        return RetList
 
     def AddToDict(daDic, word, blacklist, weight):
         if (len(word) > 2) and (word not in blacklist):
@@ -64,7 +67,7 @@ def main():
         for line in f:
             blacklist.append(line.rstrip())
 
-    for i in range(0,1):
+    for i in range(0,21):
         filename = "reut2-%s.sgm" % ("%03d" % i)
         print filename
         sgm = RR(filename)
@@ -91,7 +94,13 @@ def main():
             body = re.sub(" -", "", body)
 
             body = body.lower()
-            BodyList = body.split()
+            BodyListTemp = body.split()
+            BodyList = []
+
+            #black list words
+            for word in BodyListTemp:
+                if (word not in blacklist):
+                    BodyList.append(word)
 
             LearnShit(BodyList, TopicDic, blacklist, TopicWords)
 
@@ -99,12 +108,12 @@ def main():
             #    AddToDict(BodyDic, token, blacklist)
 
 
-    print("")
+    #print("")
     sorted_body = sorted(TopicDic.iteritems(), key=operator.itemgetter(1))
     sorted_body = sorted_body[::-1]
-    for i in range(0, min(15, len(sorted_body))):
-        print(sorted_body[i][0] + " : " + str(sorted_body[i][1]))
-    print("")
+    #for i in range(0, min(15, len(sorted_body))):
+    #    print(sorted_body[i][0] + " : " + str(sorted_body[i][1]))
+    #print("")
     print 'done'
     #print(str(ClassifyShit(["bannana","hamster","coffee","oil"])))
     string = """With other major banks standing to lose even more than
@@ -112,15 +121,18 @@ def main():
                 said they expect the debt will be restructured, similar to way
                 Mexico's debt was, minimizing soybean wheat losses to the creditor banks."""
 
-    print(str(ClassifyShit(string.lower().split())))
+    #print(str(ClassifyShit(string.lower().split())))
 
     #now test learned data
-    filename = "reut2-001.sgm"
+    good = 0
+    bad = 0
+
+    filename = "reut2-021.sgm"
     sgm = RR(filename)
     #get wordlist from file
     WordList = []
     #for j in range(0,sgm.NumberOfReuters()-1):
-    for j in range(sgm.NumberOfReuters()-3,sgm.NumberOfReuters()-1):
+    for j in range(0,5):
         body = sgm.ExtractTagData(j,"BODY")
         body = re.sub("[\d]"," ", body)
         body = re.sub("[^\w-]"," ", body)
@@ -128,11 +140,34 @@ def main():
         body = re.sub(" -", "", body)
 
         body = body.lower()
-        WordList = body.split()
+        WordListTemp = body.split()
+        #black list words
+        for word in WordListTemp:
+            if (word not in blacklist):
+                BodyList.append(word)
 
-        print("\nClassifying test article:\n")
-        ClassifyShit(WordList)
+        #print("\nClassifying test article:\n")
+        guessList = ClassifyShit(WordList)
+        topics = sgm.ExtractTagData(j,"TOPICS")
+        topics = topics.lower()
+        topics = re.sub("<d>","", topics)
+        topics = re.sub("</d>"," ", topics)
+        topics = re.sub("-"," ", topics)
+        TopicWords = topics.split()
 
+        match = False
+        #compare lists
+        for word in guessList:
+            if (word in topics):
+                match = True
+
+        if (match):
+            good += 1
+        else:
+            bad += 1
+
+    score = good / (good + bad)
+    print ("Score: " + str(score))
 
 if __name__ == '__main__':
     main()
