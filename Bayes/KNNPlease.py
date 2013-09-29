@@ -112,10 +112,10 @@ def main():
                     if (len(word) > 2 and word not in blacklist):
                         BodyList.append(word)
 
-                Learn(BodyList, TitleWords, TopicWords, 3)
+                Learn(BodyList, TitleWords, TopicWords, 50)
 
     #save WordDic for later use
-    fileW = open("Knowledge.txt", "wb")
+    fileW = open("K=50.txt", "wb")
     pickle.dump(WordDic, fileW)
 
 if __name__ == '__main__':
