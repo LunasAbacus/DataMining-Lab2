@@ -46,6 +46,39 @@ def Classify(bodyWords, titleWords, WordDic):
 
 	return temp
 
+def Classify2(bodyWords, titleWords, WordDic, num):
+	#go through all words keeping a dict of potential Topics and weights
+
+	TopicWeights = {}
+
+	for word in bodyWords:
+		if(WordDic.has_key(word)):
+			topicWords = WordDic[word].GetLikelyTopicWords(num)
+			for topicWord in topicWords:
+				if (TopicWeights.has_key(topicWord)):
+					TopicWeights[topicWord] += 1
+				else:
+					TopicWeights[topicWord] = 1
+
+	for word in titleWords:
+		if(WordDic.has_key(word)):
+			topicWords = WordDic[word].GetLikelyTopicWords(num)
+			for topicWord in topicWords:
+				if (TopicWeights.has_key(topicWord)):
+					TopicWeights[topicWord] += 3
+				else:
+					TopicWeights[topicWord] = 3
+
+	#return list of top 3 words
+	sorted_topics = sorted(TopicWeights.iteritems(), key=operator.itemgetter(1))
+	sorted_topics = sorted_topics[::-1]
+
+	temp = []
+	for pair in sorted_topics[0:5]:
+		temp.append(pair[0])
+
+	return temp
+
 def main():
 	blacklist = []
 
@@ -57,11 +90,11 @@ def main():
 			blacklist.append(line.rstrip())
 
     #read in pickle
-	file = open("k=5.txt", 'rb')
+	file = open("k=1.txt", 'rb')
  	WordDic = pickle.load(file)
 
     #go through sgm 021 and test
-	filename = "reut2-017.sgm"
+	filename = "reut2-021.sgm"
  	sgm = RR(filename)
 	for j in range(0,sgm.NumberOfReuters()-1):
 		TitleWords = []

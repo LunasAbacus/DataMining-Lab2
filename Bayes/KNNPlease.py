@@ -13,8 +13,9 @@ import pickle
 class WordWeight:
 
     def __init__(self):
-        self.wordWeights = {}
-        self.topicWord = ""
+		self.wordWeights = {}
+		self.topicWord = ""
+		self.topicWords = []
 
     def AddTopicWord(self,word, distance):
         distance = distance + 1
@@ -31,6 +32,17 @@ class WordWeight:
             sorted_topics = sorted(self.wordWeights.iteritems(), key=operator.itemgetter(1))
             self.topicWord = sorted_topics[-1][0]
             return self.topicWord
+
+    def GetLikelyTopicWords(self, number):
+        if (len(self.topicWords) > 0):
+            return self.topicWords
+        else:
+			sorted_topics = sorted(self.wordWeights.iteritems(), key=operator.itemgetter(1))
+			sorted_topics = sorted_topics[::-1]
+			for i in range(0, min(len(sorted_topics) - 1, number)):
+				self.topicWords.append(sorted_topics[i][0])
+			return self.topicWords
+
 
 def main():
     blacklist = []
@@ -112,10 +124,10 @@ def main():
                     if (len(word) > 2 and word not in blacklist):
                         BodyList.append(word)
 
-                Learn(BodyList, TitleWords, TopicWords, 50)
+                Learn(BodyList, TitleWords, TopicWords, 1)
 
     #save WordDic for later use
-    fileW = open("K=50.txt", "wb")
+    fileW = open("K=1.txt", "wb")
     pickle.dump(WordDic, fileW)
 
 if __name__ == '__main__':
